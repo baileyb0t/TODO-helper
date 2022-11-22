@@ -4,7 +4,7 @@
 # Maintainers: BP
 # Copyright:   2022, GPL v2 or later
 # =========================================
-# TODO-helper/import/src/import.py
+# TODO-helper/review/src/review.py
 
 # ---- dependencies {{{
 from pathlib import Path
@@ -45,25 +45,6 @@ def get_logger(sname, file_name=None):
     return logger
 
 
-def read_textlike(fname, concat_fname=False):
-    if not concat_fname:
-        with open(fname, 'r') as f:
-            lines = [line for line in f.readlines() if 'todo' in line.lower()]
-    else:
-        with open(fname, 'r') as f:
-            lines = [line+f" {fname}" for line in f.readlines() if 'todo' in line.lower()]
-    return lines
-
-
-def exists_or_mkdir(path):
-    if not Path(path).exists():
-        print(f"{path} does not exist. Adding now...")
-        subprocess.call(['mkdir', path])
-        subprocess.call(['touch', f'{path}/todo.done'])
-        print("added path.")
-    return 1
-
-
 def read_yaml(fname):
     with open(fname, 'r') as f_handle:
         out = yaml.safe_load(f_handle)
@@ -76,58 +57,6 @@ def track_tasks(fname, data):
         f.close()
     print(f'{fname} updated successfully, {len(data)} item(s) added.')
     return 1
-
-
-def reformat_line(line):
-    if line == '':
-        return None
-    idx = line.lower().find('todo')
-    if idx < 0:
-        return None
-    form = line.lower()[idx+5:].strip()
-    return form
-
-
-# NOTE: this approach abandons text between "todo" and "("
-def get_primarytag(line):
-    if (line is None) | (line == ''):
-        return None
-    l = line.find('(')
-    if l < 0:
-        return 'untagged'
-    r = line.find(')')
-    tag = line[l:r+1].strip()
-    return tag
-
-
-def get_task(line, tag):
-    if tag == 'untagged':
-        return line
-    idx = line.find(tag)
-    rem = line[idx+len(tag)+1:]
-    return rem
-
-
-def clean_tag(tag):
-    return tag.replace('(', '').replace(')', '').replace(' ', '_')
-
-
-def process_lines(lines):
-    out = {}
-    for line in lines:
-        print(f'line:\t{line[:-1]}')
-        info = reformat_line(line)
-        print(f'form:\t{info}')
-        tag = get_primarytag(info)
-        print(f'tag:\t{tag}')
-        task = get_task(info, tag)
-        print(f'task:\t{task}\n')
-        tag = clean_tag(tag)
-        if tag not in out:
-            out[tag] = [task]
-        else:
-            out[tag].append(task)
-    return out
 
 
 def drop_curr_tasks(fname, task_list):
@@ -173,8 +102,6 @@ if __name__ == '__main__':
 
     # do the thing
     instrs = read_textlike(args.input)
-    task_dict = process_lines(instrs)
-
     write_tasks(args.output, task_dict)
     logger.info("done.")
 

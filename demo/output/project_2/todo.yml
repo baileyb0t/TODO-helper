@@ -1,0 +1,16 @@
+- import makefile targets need better names
+- import.r initial_asserts() needs improvement
+- import.r apply ts advice about short functions
+- sample_state.r apply ts advice about short functions
+- clean logical_missing.yaml deprecated?
+- clean.py initial_asserts() needs improvement
+- clean.py final_asserts() needs improvement
+- clean.py apply ts advice about short functions
+- clean.py format_str() deprecated?
+- clean.py lines 97-106 should be a function
+- hand asis.yml deprecated?
+- canonicalize makefile compiles?
+- canonicalize merge.py implementation
+- review definitions set by hand subject_injury.yml
+- apply ts advice about short functions
+- canonicalize database.py methodology needs improvement

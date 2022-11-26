@@ -27,6 +27,7 @@ def get_args():
     parser.add_argument("--output", default=None)
     args = parser.parse_args()
     assert Path(args.input).exists()
+    assert Path(args.output).exists()
     return args
 
 
@@ -57,10 +58,10 @@ def read_textlike(fname, concat_fname=False):
 
 def exists_or_mkdir(path):
     if not Path(path).exists():
-        print(f"{path} does not exist. Adding now...")
+        logger.info(f"{path} does not exist. Adding now...")
         subprocess.call(['mkdir', path])
         subprocess.call(['touch', f'{path}/todo.done'])
-        print("added path.")
+        logger.info("added path.")
     return 1
 
 
@@ -74,7 +75,7 @@ def track_tasks(fname, data):
     with open(fname, 'a') as f:
         yaml.dump(data, f, default_flow_style=False)
         f.close()
-    print(f'{fname} updated successfully, {len(data)} item(s) added.')
+    logger.info(f'{fname} updated successfully, {len(data)} item(s) added.')
     return 1
 
 
@@ -114,15 +115,19 @@ def clean_tag(tag):
 
 def process_lines(lines):
     out = {}
+    preview = 0
     for line in lines:
-        print(f'line:\t{line[:-1]}')
         info = reformat_line(line)
-        print(f'form:\t{info}')
         tag = get_primarytag(info)
-        print(f'tag:\t{tag}')
         task = get_task(info, tag)
-        print(f'task:\t{task}\n')
         tag = clean_tag(tag)
+        if preview < 2:
+            logger.info('preview')
+            logger.info(f'line:\t{line[:-1]}')
+            logger.info(f'form:\t{info}')
+            logger.info(f'tag:\t{tag}')
+            logger.info(f'task:\t{task}\n')
+            preview += 1
         if tag not in out:
             out[tag] = [task]
         else:
@@ -146,15 +151,15 @@ def write_tasks(write_loc, task_dict):
         exists_or_mkdir(f"{tag_dir}")
         fname = f"{tag_dir}/todo.yml"
         if Path(fname).exists():
-            print(f"checking {len(task_list)} found tasks against those in {fname}.")
+            logger.info(f"checking {len(task_list)} found tasks against those in {fname}.")
             new_tasks = drop_curr_tasks(fname, task_list)
-            print(f"{len(task_list) - len(new_tasks)} duplicate tasks dropped. {len(new_tasks)} waiting to be added.")
+            logger.info(f"{len(task_list) - len(new_tasks)} duplicate tasks dropped. {len(new_tasks)} waiting to be added.")
         else:
             new_tasks = task_list
         if len(new_tasks) > 0:
             track_tasks(fname, new_tasks)
         else:
-            print("no new tasks found.")
+            logger.info("no new tasks found.")
     return 1
 
 

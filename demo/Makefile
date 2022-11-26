@@ -13,22 +13,31 @@ output := $(HERE)/demo/output/
 # }}}
 
 # ---- standard {{{
-.PHONY: all clean
+.PHONY: all clean sample_import sample_collect_active
 
-all: py_target
+all: sample_import sample_collect_active
 
 clean: 
 	-rm -r output/*
 # }}}
 
 # ---- task-specific {{{
-py_target: \
-		src/import.py \
+sample_import: \
+		$(HERE)/import/src/import.py \
 		$(input)
 	-mkdir output
 	python3 $< \
 		--input=$(input) \
-		--output=$@
+		--output=$(output)
+# }}}
+
+sample_collect_active: \
+		$(HERE)/review/src/collect_active.py \
+		$(output)
+	-mkdir output
+	python3 $< \
+		--input=$(output) \
+		--output=$(output)active.parquet
 # }}}
  
 # done.

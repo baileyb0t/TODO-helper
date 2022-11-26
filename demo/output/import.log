@@ -1,0 +1,25 @@
+2022-11-25 18:38:21 - INFO - preview
+2022-11-25 18:38:21 - INFO - line:	- TODO: add the code review prompts to a training doc
+2022-11-25 18:38:21 - INFO - form:	add the code review prompts to a training doc
+2022-11-25 18:38:21 - INFO - tag:	untagged
+2022-11-25 18:38:21 - INFO - task:	add the code review prompts to a training doc
+
+2022-11-25 18:38:21 - INFO - preview
+2022-11-25 18:38:21 - INFO - line:	- TODO: (longterm) practice R
+2022-11-25 18:38:21 - INFO - form:	(longterm) practice r
+2022-11-25 18:38:21 - INFO - tag:	longterm
+2022-11-25 18:38:21 - INFO - task:	practice r
+
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/untagged does not exist. Adding now...
+2022-11-25 18:38:21 - INFO - added path.
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/untagged/todo.yml updated successfully, 1 item(s) added.
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/longterm does not exist. Adding now...
+2022-11-25 18:38:21 - INFO - added path.
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/longterm/todo.yml updated successfully, 1 item(s) added.
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/project_2 does not exist. Adding now...
+2022-11-25 18:38:21 - INFO - added path.
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/project_2/todo.yml updated successfully, 16 item(s) added.
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/reading does not exist. Adding now...
+2022-11-25 18:38:21 - INFO - added path.
+2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/reading/todo.yml updated successfully, 1 item(s) added.
+2022-11-25 18:38:21 - INFO - done.

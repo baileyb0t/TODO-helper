@@ -4,7 +4,7 @@
 # Maintainers: BP
 # Copyright:   2022, GPL v2 or later
 # =========================================
-# TODO-helper/review/src/review.py
+# TODO-helper/import/src/import.py
 
 # ---- dependencies {{{
 from pathlib import Path
@@ -13,6 +13,8 @@ import argparse
 import logging
 import subprocess
 import yaml
+from os import listdir
+import hashlib
 import pandas as pd
 #}}}
 
@@ -51,40 +53,42 @@ def read_yaml(fname):
     return out
 
 
-def track_tasks(fname, data):
-    with open(fname, 'a') as f:
-        yaml.dump(data, f, default_flow_style=False)
-        f.close()
-    print(f'{fname} updated successfully, {len(data)} item(s) added.')
-    return 1
+def get_hash(task_str):
+    enc_task = str(task_str).encode()
+    hash_obj = hashlib.sha1(enc_task)
+    return str(hash_obj.hexdigest())
 
 
-def drop_curr_tasks(fname, task_list):
-    curr = set(read_yaml(fname))
-    inc = set(task_list)
-    keep = inc - curr
-    return list(keep)
+def collect_task_fs(task_dir):
+    return [
+        (tag, f"{task_dir}{tag}/{f}") for tag in listdir(task_dir) if '.log' not in tag
+        for f in listdir(task_dir+tag) if '.yml' in f
+    ]
 
 
-def write_tasks(write_loc, task_dict):
-    exists_or_mkdir(write_loc)
-    if write_loc[-1] != "/":
-        write_loc += "/"
-    for tag, task_list in task_dict.items():
-        tag_dir = write_loc + tag
-        exists_or_mkdir(f"{tag_dir}")
-        fname = f"{tag_dir}/todo.yml"
-        if Path(fname).exists():
-            print(f"checking {len(task_list)} found tasks against those in {fname}.")
-            new_tasks = drop_curr_tasks(fname, task_list)
-            print(f"{len(task_list) - len(new_tasks)} duplicate tasks dropped. {len(new_tasks)} waiting to be added.")
-        else:
-            new_tasks = task_list
-        if len(new_tasks) > 0:
-            track_tasks(fname, new_tasks)
-        else:
-            print("no new tasks found.")
-    return 1
+def fillin_tasks(task_dir):
+    assert Path(task_dir).exists()
+    task_lib = collect_task_fs(task_dir)
+    task_dfs = []
+    for (tag, f) in task_lib:
+        tag_tasks = read_yaml(f)
+        df = pd.DataFrame(tag_tasks, columns=['task'])
+        df[tag] = 1
+        task_dfs.append(df)
+    out = pd.concat(task_dfs).fillna(0)
+    out['task_id'] = out.task.apply(get_hash)
+    return out.reset_index().drop(columns='index')
+
+
+def find_mult_tags(task_df):
+    tag_cols = [col for col in task_df.columns if 'task' not in col]
+    if (any(task_df[tag_cols].sum(axis=1) > 1)) | (any(task_df.duplicated(subset='task_id'))):
+        print("tasks with multiple labels found")
+    else:
+        print("no tasks found with multiple labels assigned")
+    task_is = task_df.loc[task_df[tag_cols].sum(axis=1) > 1].index.values
+    task_ids = task_df.loc[task_df.index.isin(task_is), 'task_id'].values
+    return task_ids
 
 
 def final_asserts(df):
@@ -98,11 +102,13 @@ if __name__ == '__main__':
     args = get_args()
 
     # setup logging
-    logger = get_logger(__name__, f"{args.output}/import.log")
+    logger = get_logger(__name__, f"{args.input}import.log")
 
     # do the thing
-    instrs = read_textlike(args.input)
-    write_tasks(args.output, task_dict)
+    task_df = fillin_tasks(args.input)
+    mult_tags = find_mult_tags(task_df)
+
+    task_df.to_parquet(args.output)
     logger.info("done.")
 
 #}}}

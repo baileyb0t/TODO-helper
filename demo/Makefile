@@ -29,7 +29,6 @@ sample_import: \
 	python3 $< \
 		--input=$(input) \
 		--output=$(output)
-# }}}
 
 sample_collect_active: \
 		$(HERE)/review/src/collect_active.py \

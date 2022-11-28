@@ -4,7 +4,7 @@
 # Maintainers: BP
 # Copyright:   2022, GPL v2 or later
 # =========================================
-# TODO-helper/import/src/import.py
+# TODO-helper/review/src/collect_active.py
 
 # ---- dependencies {{{
 from pathlib import Path

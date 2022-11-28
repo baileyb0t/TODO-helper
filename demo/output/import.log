@@ -23,3 +23,28 @@
 2022-11-25 18:38:21 - INFO - added path.
 2022-11-25 18:38:21 - INFO - /Users/home/git/TODO-helper/demo/output/reading/todo.yml updated successfully, 1 item(s) added.
 2022-11-25 18:38:21 - INFO - done.
+2022-11-28 11:56:54 - INFO - preview
+2022-11-28 11:56:54 - INFO - line:	- TODO: add the code review prompts to a training doc
+2022-11-28 11:56:54 - INFO - form:	add the code review prompts to a training doc
+2022-11-28 11:56:54 - INFO - tag:	untagged
+2022-11-28 11:56:54 - INFO - task:	add the code review prompts to a training doc
+
+2022-11-28 11:56:54 - INFO - preview
+2022-11-28 11:56:54 - INFO - line:	- TODO: (longterm) practice R
+2022-11-28 11:56:54 - INFO - form:	(longterm) practice r
+2022-11-28 11:56:54 - INFO - tag:	longterm
+2022-11-28 11:56:54 - INFO - task:	practice r
+
+2022-11-28 11:56:54 - INFO - checking 1 found tasks against those in ../output/untagged/todo.yml.
+2022-11-28 11:56:54 - INFO - 1 duplicate tasks dropped. 0 waiting to be added.
+2022-11-28 11:56:54 - INFO - no new tasks found.
+2022-11-28 11:56:54 - INFO - checking 1 found tasks against those in ../output/longterm/todo.yml.
+2022-11-28 11:56:54 - INFO - 1 duplicate tasks dropped. 0 waiting to be added.
+2022-11-28 11:56:54 - INFO - no new tasks found.
+2022-11-28 11:56:54 - INFO - checking 16 found tasks against those in ../output/project_2/todo.yml.
+2022-11-28 11:56:54 - INFO - 16 duplicate tasks dropped. 0 waiting to be added.
+2022-11-28 11:56:54 - INFO - no new tasks found.
+2022-11-28 11:56:54 - INFO - checking 1 found tasks against those in ../output/reading/todo.yml.
+2022-11-28 11:56:54 - INFO - 1 duplicate tasks dropped. 0 waiting to be added.
+2022-11-28 11:56:54 - INFO - no new tasks found.
+2022-11-28 11:56:54 - INFO - done.

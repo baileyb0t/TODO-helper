@@ -8,27 +8,38 @@
 
 # ---- dependencies {{{
 HERE := $(shell git rev-parse --show-toplevel)
-input := $(HERE)/demo/hand/code-review.md
-taskdir := $(HERE)/demo/output
+demoin := $(HERE)/demo/hand/code-review.md
+demodir := $(HERE)/demo/output
+
+notedir := ~/git/my-TODO/individual
+taskdir := ~/git/my-TODO/tasks
 # }}}
 
 # ---- standard {{{
-.PHONY: all clean
+.PHONY: all
 
 all: import.done
 
-clean: 
-	-rm -r output/*
 # }}}
 
 # ---- task-specific {{{
 import.done: \
 		src/import.py \
-		$(input)
+		$(notedir)
 	-mkdir $(taskdir)
 	python3 $< \
-		--input=$(input) \
+		--input=$(notedir) \
 		--taskdir=$(taskdir)
+    touch $@
+
+demo.done: \
+		src/import.py \
+		$(demoin)
+	-mkdir $(demodir)
+	python3 $< \
+		--input=$(demoin) \
+		--taskdir=$(demodir)
+    touch $@
 # }}}
  
 # done.

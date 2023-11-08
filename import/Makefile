@@ -9,26 +9,26 @@
 # ---- dependencies {{{
 HERE := $(shell git rev-parse --show-toplevel)
 input := $(HERE)/demo/hand/code-review.md
-output := $(HERE)/demo/output/
+taskdir := $(HERE)/demo/output
 # }}}
 
 # ---- standard {{{
 .PHONY: all clean
 
-all: py_target
+all: import.done
 
 clean: 
 	-rm -r output/*
 # }}}
 
 # ---- task-specific {{{
-py_target: \
+import.done: \
 		src/import.py \
 		$(input)
-	-mkdir output
+	-mkdir $(taskdir)
 	python3 $< \
 		--input=$(input) \
-		--output=$@
+		--taskdir=$(taskdir)
 # }}}
  
 # done.

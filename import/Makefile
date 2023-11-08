@@ -1,8 +1,8 @@
-# vim: set ts=4 sts=0 sw=4 si fenc=utf-8 et:
-# vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:#
+# vim: set ts=8 sts=0 sw=8 si fenc=utf-8 noet:
+# vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:
 # Authors:     BP
 # Maintainers: BP
-# Copyright:   2022, GPL v2 or later
+# Copyright:   2023, HRDAG, GPL v2 or later
 # =========================================
 # TODO-helper/import/Makefile
 
@@ -10,36 +10,38 @@
 HERE := $(shell git rev-parse --show-toplevel)
 demoin := $(HERE)/demo/hand/code-review.md
 demodir := $(HERE)/demo/output
+demo := $(demodir)/demo.done
 
 notedir := ~/git/my-TODO/individual
 taskdir := ~/git/my-TODO/tasks
+import := $(taskdir)/import.done
 # }}}
 
 # ---- standard {{{
 .PHONY: all
 
-all: import.done
+all: $(import)
 
 # }}}
 
 # ---- task-specific {{{
-import.done: \
+$(import): \
 		src/import.py \
 		$(notedir)
 	-mkdir $(taskdir)
 	python3 $< \
 		--input=$(notedir) \
 		--taskdir=$(taskdir)
-    touch $@
+	touch $@
 
-demo.done: \
+$(demo): \
 		src/import.py \
 		$(demoin)
 	-mkdir $(demodir)
 	python3 $< \
 		--input=$(demoin) \
 		--taskdir=$(demodir)
-    touch $@
+	touch $@
 # }}}
  
 # done.

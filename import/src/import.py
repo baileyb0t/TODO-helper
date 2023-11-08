@@ -24,10 +24,10 @@ def initial_asserts():
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default=None)
-    parser.add_argument("--output", default=None)
+    parser.add_argument("--taskdir", default=None)
     args = parser.parse_args()
     assert Path(args.input).exists()
-    assert Path(args.output).exists()
+    assert Path(args.taskdir).exists()
     return args
 
 
@@ -174,13 +174,13 @@ if __name__ == '__main__':
     args = get_args()
 
     # setup logging
-    logger = get_logger(__name__, f"{args.output}/import.log")
+    logger = get_logger(__name__, f"{args.taskdir}/import.log")
 
     # do the thing
     instrs = read_textlike(args.input)
     task_dict = process_lines(instrs)
 
-    write_tasks(args.output, task_dict)
+    write_tasks(args.taskdir, task_dict)
     logger.info("done.")
 
 #}}}

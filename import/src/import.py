@@ -69,10 +69,10 @@ def prep_notes(arg):
 
 
 def load_input(arg):
-    notes = pd.DataFrame({'filepath': prep_notes(arg)})
-    notes['filename'] = notes.filepath.astype(str).apply(lambda x: x[x.rfind("/")+1:])
+    notes = pd.DataFrame({'source': prep_notes(arg)})
+    notes['filename'] = notes.source.astype(str).apply(lambda x: x[x.rfind("/")+1:])
     logger.info('digesting files')
-    notes['TODO_line'] = notes.filepath.apply(read_textlike)
+    notes['TODO_line'] = notes.source.apply(read_textlike)
     notes = notes.explode("TODO_line").dropna().reset_index(drop=True)
     return notes
 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     
     # TODO: make it so it doesn't overwrite existing dfs?
     # also TODO: this script could be modified to scan non-note files (like scripts) for TODOs
-    notes.filepath = notes.filepath.astype(str)
+    notes.source = notes.source.astype(str)
     for tag in notes.tag.unique():
         logger.info(f'writing for tag:\t{tag}')
         subset = notes.loc[notes.tag == tag]

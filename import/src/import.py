@@ -130,6 +130,8 @@ if __name__ == '__main__':
     
     logger.info('capturing TODO timelines')
     notes = add_timelines(notes)
+    
+    notes[['started', 'last_update', 'completed']] = False
     # }}}
 
     # outputting tasks --- {{{
@@ -147,8 +149,8 @@ if __name__ == '__main__':
         subset = notes.loc[notes.tag == tag]
         logger.info(f'{subset.shape[0]} TODO records tagged')
         writepath = f'{subset.tagpath.values[0]}/todo.parquet'
-        if isfile(writepath): logger.info(f'WARNING: {writepath} already exists.')
-        subset.to_parquet(writepath)
+        if isfile(writepath): logger.info(f'WARNING: {writepath} already exists and is being overwritten.')
+        subset.drop(columns='tagpath').to_parquet(writepath)
     # }}}
     
     logger.info("done.")

@@ -80,20 +80,20 @@ def load_input(arg):
 def add_tags(df):
     assert 'TODO_line' in df.columns
     df['tag'] = df.TODO_line.apply(
-        lambda x: re.findall(patterns['tag'], x) if x else None)
+        lambda x: re.findall(patterns['tag'], x, flags=re.I) if x else None)
     df = df.explode('tag').fillna('untagged')
     return df
 
 
 def add_timelines(df):
     df['timeline'] = df.TODO_line.apply(
-        lambda x: re.findall(patterns['timeline'], x) if x else None)
+        lambda x: re.findall(patterns['timeline'], x, flags=re.I) if x else None)
     df = df.explode('timeline')
     return df
 
 
 def clean_TODO(line):
-    clean = line.strip()
+    clean = line.replace('TODO: ', '').replace('TODO', '').strip()
     if clean[:2] == '- ': clean = clean[2:]
     return clean
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     notes = add_timelines(notes)
     
     notes['task'] = notes.TODO_line.apply(clean_TODO)
-    notes.task = notes.task.str.replace(patterns['tag'], '', regex=True)
+    notes.task = notes.task.str.replace(patterns['tag'], '', regex=True, flags=re.I)
     notes[['started', 'last_update', 'completed']] = False
     # }}}
 

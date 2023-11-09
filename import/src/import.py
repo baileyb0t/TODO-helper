@@ -7,21 +7,21 @@
 # TODO-helper/import/src/import.py
 
 # ---- dependencies {{{
-from pathlib import Path
+from pathlib import Path, PosixPath
 from sys import stdout
+from os.path import isfile, isdir
 import argparse
 import logging
 import subprocess
-import yaml
+import re
 import pandas as pd
 #}}}
 
 # ---- support methods {{{
-def initial_asserts():
-    return 1 
-
-
 def get_args():
+    """
+    this is a relatively generic method for arg handling
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default=None)
     parser.add_argument("--taskdir", default=None)
@@ -32,6 +32,9 @@ def get_args():
 
 
 def get_logger(sname, file_name=None):
+    """
+    generic method for logging so progress can be tracked
+    """
     logger = logging.getLogger(sname)
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s " +
@@ -46,141 +49,108 @@ def get_logger(sname, file_name=None):
     return logger
 
 
-def read_textlike(fname, concat_fname=False):
-    if not concat_fname:
-        with open(fname, 'r') as f:
-            lines = [line for line in f.readlines() if 'todo' in line.lower()]
-    else:
-        with open(fname, 'r') as f:
-            lines = [line+f" {fname}" for line in f.readlines() if 'todo' in line.lower()]
+def read_textlike(fname):
+    """    
+    designed for md files (i hardcode '.md' in other places, maybe change the name?)
+    filters for lines with 'TODO' mark
+    probably a more efficient way than list comp but most notes are just daily files
+    so, not worried about too much data loaded on initial file read(s)
+    """
+    with open(fname, 'r') as f:
+        lines = [line for line in f.readlines() if 'todo' in line.lower()]
+    if all(pd.isna(lines)): return None
     return lines
 
 
+def prep_notes(arg):
+    if isfile(arg): return PosixPath(arg)
+    if isdir(arg): return [path for path in Path(arg).rglob('*.md')]
+    return None
+
+
+def load_input(arg):
+    notes = pd.DataFrame({'filepath': prep_notes(arg)})
+    notes['filename'] = notes.filepath.astype(str).apply(lambda x: x[x.rfind("/")+1:])
+    logger.info('digesting files')
+    notes['TODO_line'] = notes.filepath.apply(read_textlike)
+    notes = notes.explode("TODO_line").dropna().reset_index(drop=True)
+    return notes
+
+
+def add_tags(df):
+    assert 'TODO_line' in df.columns
+    df['tag'] = df.TODO_line.apply(
+        lambda x: re.findall(patterns['tag'], x) if x else None)
+    df = df.explode('tag').fillna('untagged')
+    return df
+
+
+def add_timelines(df):
+    df['timeline'] = df.TODO_line.apply(
+        lambda x: re.findall(patterns['timeline'], x) if x else None)
+    df = df.explode('timeline')
+    return df
+
+
 def exists_or_mkdir(path):
+    """
+    need to be able to create new dirs for new tags
+    """
     if not Path(path).exists():
         logger.info(f"{path} does not exist. Adding now...")
         subprocess.call(['mkdir', path])
-        subprocess.call(['touch', f'{path}/todo.done'])
         logger.info("added path.")
-    return 1
-
-
-def read_yaml(fname):
-    with open(fname, 'r') as f_handle:
-        out = yaml.safe_load(f_handle)
-    return out
-
-
-def track_tasks(fname, data):
-    with open(fname, 'a') as f:
-        yaml.dump(data, f, default_flow_style=False)
-        f.close()
-    logger.info(f'{fname} updated successfully, {len(data)} item(s) added.')
-    return 1
-
-
-def reformat_line(line):
-    if line == '':
-        return None
-    idx = line.lower().find('todo')
-    if idx < 0:
-        return None
-    form = line.lower()[idx+5:].strip()
-    return form
-
-
-# NOTE: this approach abandons text between "todo" and "("
-def get_primarytag(line):
-    if (line is None) | (line == ''):
-        return None
-    l = line.find('(')
-    if l < 0:
-        return 'untagged'
-    r = line.find(')')
-    tag = line[l:r+1].strip()
-    return tag
-
-
-def get_task(line, tag):
-    if tag == 'untagged':
-        return line
-    idx = line.find(tag)
-    rem = line[idx+len(tag)+1:]
-    return rem
-
-
-def clean_tag(tag):
-    return tag.replace('(', '').replace(')', '').replace(' ', '_')
-
-
-def process_lines(lines):
-    out = {}
-    preview = 0
-    for line in lines:
-        info = reformat_line(line)
-        tag = get_primarytag(info)
-        task = get_task(info, tag)
-        tag = clean_tag(tag)
-        if preview < 2:
-            logger.info('preview')
-            logger.info(f'line:\t{line[:-1]}')
-            logger.info(f'form:\t{info}')
-            logger.info(f'tag:\t{tag}')
-            logger.info(f'task:\t{task}\n')
-            preview += 1
-        if tag not in out:
-            out[tag] = [task]
-        else:
-            out[tag].append(task)
-    return out
-
-
-def drop_curr_tasks(fname, task_list):
-    curr = set(read_yaml(fname))
-    inc = set(task_list)
-    keep = inc - curr
-    return list(keep)
-
-
-def write_tasks(write_loc, task_dict):
-    exists_or_mkdir(write_loc)
-    if write_loc[-1] != "/":
-        write_loc += "/"
-    for tag, task_list in task_dict.items():
-        tag_dir = write_loc + tag
-        exists_or_mkdir(f"{tag_dir}")
-        fname = f"{tag_dir}/todo.yml"
-        if Path(fname).exists():
-            logger.info(f"checking {len(task_list)} found tasks against those in {fname}.")
-            new_tasks = drop_curr_tasks(fname, task_list)
-            logger.info(f"{len(task_list) - len(new_tasks)} duplicate tasks dropped. {len(new_tasks)} waiting to be added.")
-        else:
-            new_tasks = task_list
-        if len(new_tasks) > 0:
-            track_tasks(fname, new_tasks)
-        else:
-            logger.info("no new tasks found.")
-    return 1
-
-
-def final_asserts(df):
     return 1
 #}}}
 
 # ---- main {{{
 if __name__ == '__main__':
 
-    # arg handling
+    # setup --- {{{
+    # general
     args = get_args()
-
-    # setup logging
     logger = get_logger(__name__, f"{args.taskdir}/import.log")
+    
+    # re
+    patterns = {
+        "tag": "\(([a-z0-9\-]+)\)",
+        "timeline": "\[(by[a-z0-9:\s\/\-]*|before[a-z0-9:\s\/\-]*)\]",
+    }
+    # }}}
 
-    # do the thing
-    instrs = read_textlike(args.input)
-    task_dict = process_lines(instrs)
+    # core routine --- {{{
+    logger.info('loading args')
+    notes = load_input(args.input)
+    
+    logger.info('applying minor fixes to legacy notes')
+    notes.TODO_line = notes.TODO_line.str.replace('[tech]', '(tech)', regex=False)
+    
+    logger.info('capturing TODO tags')
+    notes = add_tags(notes)
+    
+    logger.info('capturing TODO timelines')
+    notes = add_timelines(notes)
+    # }}}
 
-    write_tasks(args.taskdir, task_dict)
+    # outputting tasks --- {{{
+    logger.info('preparing to write tasks')
+    notes['tagpath'] = notes.tag.apply(lambda tag: f'{args.taskdir}/{tag}')
+    assert notes.tagpath.value_counts().head(1).values == \
+        notes.tag.value_counts().head(1).values
+    assert notes.tagpath.apply(exists_or_mkdir).all()
+    
+    # TODO: make it so it doesn't overwrite existing dfs?
+    # also TODO: this script could be modified to scan non-note files (like scripts) for TODOs
+    notes.filepath = notes.filepath.astype(str)
+    for tag in notes.tag.unique():
+        logger.info(f'writing for tag:\t{tag}')
+        subset = notes.loc[notes.tag == tag]
+        logger.info(f'{subset.shape[0]} TODO records tagged')
+        writepath = f'{subset.tagpath.values[0]}/todo.parquet'
+        if isfile(writepath): logger.info(f'WARNING: {writepath} already exists.')
+        subset.to_parquet(writepath)
+    # }}}
+    
     logger.info("done.")
 
 #}}}

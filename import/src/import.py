@@ -92,6 +92,12 @@ def add_timelines(df):
     return df
 
 
+def clean_TODO(line):
+    clean = line.strip()
+    if clean[:2] == '- ': clean = clean[2:]
+    return clean
+
+
 def exists_or_mkdir(path):
     """
     need to be able to create new dirs for new tags
@@ -113,7 +119,7 @@ if __name__ == '__main__':
     
     # re
     patterns = {
-        "tag": "\(([a-z0-9\-]+)\)",
+        "tag": "\(([a-z0-9\-\_]+)\)",
         "timeline": "\[(by[a-z0-9:\s\/\-]*|before[a-z0-9:\s\/\-]*)\]",
     }
     # }}}
@@ -131,6 +137,8 @@ if __name__ == '__main__':
     logger.info('capturing TODO timelines')
     notes = add_timelines(notes)
     
+    notes['task'] = notes.TODO_line.apply(clean_TODO)
+    notes.task = notes.task.str.replace(patterns['tag'], '', regex=True)
     notes[['started', 'last_update', 'completed']] = False
     # }}}
 

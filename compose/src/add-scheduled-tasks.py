@@ -7,24 +7,20 @@
 # =========================================
 
 # dependencies --- {{{
-from pathlib import Path
+from os.path import isdir, isfile
+from pathlib import Path, PosixPath
 from sys import stdout
 import argparse
 import logging
-from datetime import date, datetime
-import yaml
-from doc import Doc
+import pandas as pd
 # }}}
 
 # support methods {{{
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--date", default=None)
-    parser.add_argument("--rules", default="~/git/TODO-helper/composer/hand/groups.yml")
-    parser.add_argument("--outputdir", default="~/git/my-TODO/individual/daily")
+    parser.add_argument("--taskdir", default="~/git/my-TODO/tasks")
     args = parser.parse_args()
-    assert Path(args.rules).exists()
-    assert Path(args.outputdir).exists()
+    assert Path(args.taskdir).exists()
     return args
 
 
@@ -43,20 +39,18 @@ def get_logger(sname, file_name=None):
     return logger
 
 
-def read_yaml(yaml_file):
-    """
-    read in formatting rules
-    """
-    with open(yaml_file, 'r') as f:
-        rules = yaml.safe_load(f)
-        f.close()
-    return rules
+def find_taskfiles(arg):
+    if isfile(arg): return PosixPath(arg)
+    if isdir(arg): return [path for path in Path(arg).rglob('*.parquet')]
+    return None
 
 
-def format_date(arg):
-    if '-' in arg: form = datetime.strptime(arg, '%Y-%m-%d')
-    else: form = datetime.strptime(arg, '%Y%m%d')
-    return form
+def prep_tasks(arg):
+    fs = find_taskfiles(arg)
+    assert fs != []
+    assert Path(fs[0]).exists()
+    out = pd.concat([pd.read_parquet(f) for f in fs])
+    return out
 # }}}
 
 # main --- {{{
@@ -64,17 +58,11 @@ if __name__ == '__main__':
 
     # basic setup --- {{{
     # setup logging
-    logger = get_logger(__name__, "output/daily.log")
+    logger = get_logger(__name__, "output/add-scheduled-tasks.log")
     # arg handling
     args = get_args()
-    if not args.date: today = date.today()
-    else: today = format_date(args.date)
-    out_f = f"{args.outputdir}/{today.strftime('%Y-%m-%d.md')}"
-    # }}}
 
-    # Reminder:
-    #     Doc's first action is assigning
-    #     self.head = Line(prefix=prefix, text=text)
-    doc = Doc(prefix='# ', \
-            text=today.strftime('%A, %d %B %Y'))
-# }}}
+    # no bumps on this road yet, just some with scheduled events
+    # this will soon be amended to add task lines to the dailyfile
+    # can happen regardless of if recurring meetings are being added right
+    tasks = prep_tasks(args.taskdir)

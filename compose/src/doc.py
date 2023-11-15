@@ -29,7 +29,7 @@ class Doc():
     def __init__(self, prefix, text):
         self.head = Line(prefix=prefix, text=text)
 
-    def __str__(self):
+    def __repr__(self):
         """
         assume this is about previewing the Doc object
         """

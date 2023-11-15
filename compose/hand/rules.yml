@@ -1,12 +1,12 @@
 section:
   general:
-    'general'
+    general
   scheduled:
-    'scheduled'
+    scheduled
   notes:
     'notes|SOD'
   EOD:
-    'EOD'
+    EOD
 format:
   text:
     ''
@@ -24,3 +24,14 @@ tag:
   '\(([a-z0-9\-\_]+)\)'
 timeline:
   '\[(by[a-z0-9:\s\/\-]*|before[a-z0-9:\s\/\-]*|on[a-z0-9:\s\/\-]*)\]'
+countries:
+  US
+  MX
+  CO
+  GT
+  CR
+  GB
+  AE
+markets:
+  XNYS
+  ECB

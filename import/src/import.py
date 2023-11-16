@@ -93,7 +93,7 @@ def add_timelines(df):
 
 
 def clean_TODO(line):
-    clean = line.replace('TODO: ', '').replace('TODO', '').strip()
+    clean = line.replace('[^-]TODO[^-][:\s]*', '').strip()
     if clean[:2] == '- ': clean = clean[2:]
     return clean
 
@@ -133,6 +133,7 @@ if __name__ == '__main__':
     
     logger.info('capturing TODO tags')
     notes = add_tags(notes)
+    assert 'tag' in notes.columns
     
     logger.info('capturing TODO timelines')
     notes = add_timelines(notes)
@@ -144,18 +145,19 @@ if __name__ == '__main__':
 
     # outputting tasks --- {{{
     logger.info('preparing to write tasks')
-    notes['tagpath'] = notes.tag.apply(lambda tag: f'{args.taskdir}/{tag}')
+    notes['form_tag'] = notes.tag.str.lower()
+    notes['tagpath'] = notes.form_tag.apply(lambda form_tag: f'{args.taskdir}/{form_tag}')
     assert notes.tagpath.value_counts().head(1).values == \
-        notes.tag.value_counts().head(1).values
+        notes.form_tag.value_counts().head(1).values
     assert notes.tagpath.apply(exists_or_mkdir).all()
     
     # TODO: make it so it doesn't overwrite existing dfs?
     # also TODO: this script could be modified to scan non-note files (like scripts) for TODOs
     notes.source = notes.source.astype(str)
-    for tag in notes.tag.unique():
-        logger.info(f'writing for tag:\t{tag}')
-        subset = notes.loc[notes.tag == tag]
-        logger.info(f'{subset.shape[0]} TODO records tagged')
+    for form_tag in notes.form_tag.unique():
+        logger.info(f'writing for tag:\t{form_tag}')
+        subset = notes.loc[notes.form_tag == form_tag]
+        logger.info(f'{subset.shape[0]} TODO records tagged {form_tag}')
         writepath = f'{subset.tagpath.values[0]}/todo.parquet'
         if isfile(writepath): logger.info(f'WARNING: {writepath} already exists and is being overwritten.')
         subset.drop(columns='tagpath').to_parquet(writepath)

@@ -28,5 +28,3 @@ class Line:
         reverse of repr() is eval()
         """
         return f'Line({self.prefix}, {self.text}, {self.suffix})'
-
-

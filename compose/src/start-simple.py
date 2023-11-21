@@ -22,8 +22,8 @@ from doc import Doc
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", default=None)
-    parser.add_argument("--rules", default="~/git/TODO-helper/composer/hand/rules.yml")
-    parser.add_argument("--outputdir", default="~/git/my-TODO/individual/daily")
+    parser.add_argument("--rules", default="hand/rules.yml")
+    parser.add_argument("--outputdir", default="/Users/home/git/my-TODO/individual/daily")
     args = parser.parse_args()
     assert Path(args.rules).exists()
     assert Path(args.outputdir).exists()
@@ -94,15 +94,12 @@ if __name__ == '__main__':
 
     # basic setup --- {{{
     # setup logging
-    logger = get_logger(__name__, "output/daily.log")
+    logger = get_logger(__name__, "output/start-simple.log")
     # arg handling
     args = get_args()
-    if not args.date: today = date.today()
-    else: today = format_date(args.date)
-    out_f = f"{args.outputdir}/{today.strftime('%Y-%m-%d.md')}"
     # }}}
 
-    rules = read_yaml(args.hand)
+    rules = read_yaml(args.rules)
     countries = rules['countries'].split()
     markets = rules['markets'].split()
     formats = rules['format']
@@ -111,8 +108,11 @@ if __name__ == '__main__':
     dailyfile, today = prep_out()
 
     # do the thing
-    doc = Doc(prefix='# ', text=today.strftime('%A, %d %B %Y'))
+    doc = Doc(prefix='# ', text=today.strftime('%A, %d %B %Y'), filename=dailyfile)
     doc = add_holidays(doc)
     
+
+    # temporary method of outputting docs
+    # ideal is to have built-in to_json method for Doc()
     assert write_md(dailyfile, doc.__repr__())
 # }}}

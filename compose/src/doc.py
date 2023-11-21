@@ -7,6 +7,7 @@
 # =========================================
 
 # dependencies --- {{{
+import json
 from line import Line
 # }}}
 
@@ -26,8 +27,11 @@ class Doc():
     while preserving the flexible construction of the Doc
     """
 
-    def __init__(self, prefix, text):
+    def __init__(self, prefix, text, path, from_md=False):
         self.head = Line(prefix=prefix, text=text)
+        self.path = path
+        self.filename = path[path.rfind('/'):path.rfind('.')]
+
 
     def __repr__(self):
         """
@@ -51,6 +55,18 @@ class Doc():
             cur_line = cur_line.next
         return size
 
+
+    def __dict__(self):
+        out = {k:v for k,v in self.__dict__.items() if k != 'head'}
+        out['lines'] = {0: self.head}
+        cur_line = self.head
+        for i in range(1, len(self)):
+            cur_line = cur_line.next
+            out['lines'][i] = {k:v for k,v in cur_line.__dict__.items() if k != 'next'}
+            
+        return 
+
+
     def insert(self, prefix, text):
         """
         insert at the end of the Doc
@@ -61,3 +77,6 @@ class Doc():
         cur_line.next = new_line
 
 
+    def to_json(fname, doc):
+
+        return f'{fname} written successfully'

@@ -97,13 +97,12 @@ def get_events(ecal, caldate):
 
 def add_events(notes, events):
     notes.insert(prefix=formats['subheader'], text='On the Calendar')
-    if notes.dailyday not in events: 
+    if len(events) < 1: 
         notes.insert(prefix=formats['notes'], text=None)
         return notes
-    to_add = events[notes.dailyday]
-    for event in to_add:
+    for text in events:
         notes.insert(prefix=formats['meeting'], 
-                     text=f"{event['time']} {event['title']}")
+                     text=text)
     notes.insert(prefix='', text='')
     return notes
 # }}}

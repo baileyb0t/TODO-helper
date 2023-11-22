@@ -13,6 +13,7 @@ from sys import stdout
 import argparse
 import logging
 import pandas as pd
+import doc
 # }}}
 
 # support methods {{{

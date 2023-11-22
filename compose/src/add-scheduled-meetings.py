@@ -11,17 +11,24 @@ from pathlib import Path
 from sys import stdout
 import argparse
 import logging
-from zoneinfo import ZoneInfo
+import yaml
 from datetime import date, datetime
-from icalendar import Calendar, Event, vCalAddress, vText
-from doc import Doc
+from zoneinfo import ZoneInfo
+from icalendar import Calendar
+import recurring_ical_events
+import doc
 # }}}
 
 # support methods {{{
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ics", default="../frozen/Bailey Passmore_m.bailey.passmore@gmail.com.ics")
+    parser.add_argument("--rules", default="hand/rules.yml")
+    parser.add_argument("--json", default=None)
+    parser.add_argument("--ics", default="frozen/Bailey_Passmore_m.bailey.passmore@gmail.com.ics")
+    parser.add_argument("--output", default=None)
     args = parser.parse_args()
+    assert Path(args.rules).exists()
+    assert Path(args.json).exists()
     assert Path(args.ics).exists()
     return args
 
@@ -41,11 +48,64 @@ def get_logger(sname, file_name=None):
     return logger
 
 
+def read_yaml(fname):
+    with open(fname, 'r') as f:
+        rules = yaml.safe_load(f)
+        f.close()
+    return rules
+
+
 def load_cal(icsname):
     with open(icsname, 'rb') as f:
         ecal = Calendar.from_ical(f.read())
     f.close()
     return ecal
+
+
+def get_event_info(event):
+    return {
+        'title': str(event['SUMMARY']),
+        'timestamp': event.decoded('DTSTART'),
+        'date': event.decoded('DTSTART').strftime('%Y-%m-%d'),
+        'time': event.decoded('DTSTART').strftime('%H:%M'),
+    }
+
+
+def find_events(ecal, caldate):
+    events = []
+    for event in recurring_ical_events.of(ecal).at(caldate):
+        if 'SUMMARY' in event:
+            info = get_event_info(event)
+            if 'LOCATION' in event: info['location'] = str(event['LOCATION'])
+            events.append(info)
+    return events
+
+
+def get_events(ecal, caldate):
+    events = find_events(ecal, caldate)
+    out = []
+    for event in events:
+        if 'location' in event:
+            if 'zoom' in event['location'].lower(): meet_type='virtual'
+            else: meet_type='in person'
+        else:
+            meet_type='no location set'
+        text = f"{event['time']} {event['title']} ({meet_type})"
+        out.append(text)
+    return sorted(out)
+
+
+def add_events(notes, events):
+    notes.insert(prefix=formats['subheader'], text='On the Calendar')
+    if notes.dailyday not in events: 
+        notes.insert(prefix=formats['notes'], text=None)
+        return notes
+    to_add = events[notes.dailyday]
+    for event in to_add:
+        notes.insert(prefix=formats['meeting'], 
+                     text=f"{event['time']} {event['title']}")
+    notes.insert(prefix='', text='')
+    return notes
 # }}}
 
 # main --- {{{
@@ -57,23 +117,16 @@ if __name__ == '__main__':
     # arg handling
     args = get_args()
     
-    ecal = load_cal(args.ics)
+    rules = read_yaml(args.rules)
+    formats = rules['format']
     
-    # this process seems to work well for one-off meetings
-    # but recurring meetings are formatted differently
-    # and are not consistently appearing as event items in the collection
-    # notebook has IN-PROGRESS solutions to this issue
-    # once I figured that out, the script will actually write to the dailyfile
-    events = {}
-    for event in ecal.walk("VEVENT"):
-        if 'SUMMARY' in event:
-            info = {
-                'title': str(event['SUMMARY']),
-                'timestamp': event.decoded('DTSTART'),
-                'date': event.decoded('DTSTART').strftime('%Y-%m-%d'),
-                'time': event.decoded('DTSTART').strftime('%H:%M'),
-            }
-            if 'LOCATION' in event: info['location'] = str(event['LOCATION'])
-            if info['date'] not in events: events[info['date']] = [info]
-            else: events[info['date']].append(info)
+    notes = doc.from_json(args.json)
+    ecal = load_cal(args.ics)
+    caldate = notes.dailyday.replace('-','')
+
+    events = get_events(ecal, caldate)
+    notes = add_events(notes, events)
+    
+    notes.to_json(args.json)
+    notes.to_md(args.output)
 # }}}

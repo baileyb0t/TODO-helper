@@ -12,7 +12,7 @@ from sys import stdout
 import argparse
 import logging
 from zoneinfo import ZoneInfo
-from datetime import date, datetime
+from datetime import datetime
 import yaml
 import holidays
 from doc import Doc
@@ -21,12 +21,12 @@ from doc import Doc
 # support methods {{{
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--date", default=None)
     parser.add_argument("--rules", default="hand/rules.yml")
+    parser.add_argument("--date", default=None)
     parser.add_argument("--outputdir", default="/Users/home/git/my-TODO/individual/daily")
+    parser.add_argument("--output", default=None)
     args = parser.parse_args()
     assert Path(args.rules).exists()
-    assert Path(args.outputdir).exists()
     return args
 
 
@@ -52,18 +52,20 @@ def read_yaml(fname):
     return rules
 
 
-def format_date(arg):
-    if '-' in arg: form = datetime.strptime(arg, '%Y-%m-%d')
-    else: form = datetime.strptime(arg, '%Y%m%d')
-    return form
+def format_date(from_arg, date=datetime.now()):
+    if not from_arg:
+        return date.replace(tzinfo=ZoneInfo('US/Pacific'))
+    if '-' in date: form = datetime.strptime(date, '%Y-%m-%d')
+    else: form = datetime.strptime(date, '%Y%m%d')
+    return form.astimezone(ZoneInfo('US/Pacific'))
 
 
 def prep_out():
-    if not args.date: today = date.today()
-    else: today = format_date(args.date)
-    out_f = f"{args.outputdir}/{today.strftime('%Y-%m-%d.md')}"
-    today = today.astimezone(ZoneInfo('US/Pacific'))
-    return out_f, today
+    if not args.date: today = format_date(from_arg=False)
+    else: today = format_date(from_arg=True, date=args.date)
+    path = f"{args.outputdir}/{today.strftime('%Y-%m-%d')}"
+    today = today
+    return path, today
 
 
 def check_holidays():
@@ -76,17 +78,20 @@ def check_holidays():
     return found
 
 
-def add_holidays(doc):
+def add_holidays(notes):
     found = check_holidays()
-    label = 'Country or financial holiday(s)'
-    doc.insert(prefix=formats['notes'], text=f'{label}:\t{found}')
-    return doc
+    label = 'National or financial holiday(s)'
+    notes.insert(prefix=formats['notes'], text=f'{label}:\t{found}')
+    notes.insert(prefix='', text='')
+    return notes
 
 
-def write_md(fname, doc):
-    with open(fname, 'w') as f:
-        f.write(doc)
-    return 1
+def add_5min(notes, prompt):
+    notes.insert(prefix=formats['subheader'], text=prompt)
+    for i in range(1, 4):
+        notes.insert(prefix=f'{i}. ', text='____________________')
+    notes.insert(prefix='', text='')
+    return notes
 # }}}
 
 # main --- {{{
@@ -105,14 +110,16 @@ if __name__ == '__main__':
     formats = rules['format']
 
     # dynamic setup
-    dailyfile, today = prep_out()
-
-    # do the thing
-    doc = Doc(prefix='# ', text=today.strftime('%A, %d %B %Y'), filename=dailyfile)
-    doc = add_holidays(doc)
+    path, today = prep_out()
     
-
-    # temporary method of outputting docs
-    # ideal is to have built-in to_json method for Doc()
-    assert write_md(dailyfile, doc.__repr__())
+    # do the thing
+    notes = Doc(prefix='# ', 
+              text=today.strftime('%A, %d %B %Y'), 
+              path=path, 
+              dailyday=today.strftime('%Y-%m-%d'))
+    notes = add_holidays(notes)
+    notes = add_5min(notes, prompt="I'm grateful for...")
+    notes = add_5min(notes, prompt="What would make today great?")
+    
+    notes.to_json(args.output)
 # }}}

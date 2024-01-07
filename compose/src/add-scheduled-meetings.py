@@ -24,7 +24,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--rules", default="hand/rules.yml")
     parser.add_argument("--json", default=None)
-    parser.add_argument("--ics", default="frozen/Bailey_Passmore_m.bailey.passmore@gmail.com.ics")
+    parser.add_argument("--ics", default="../calendar/output/mbp.ics")
     parser.add_argument("--output", default=None)
     args = parser.parse_args()
     assert Path(args.rules).exists()

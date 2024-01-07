@@ -10,7 +10,7 @@
 dailydir := $(HOME)/git/my-TODO/individual/daily
 jsondir := $(HOME)/git/my-TODO/individual/daily/json
 rules := hand/rules.yml
-cal := frozen/Bailey_Passmore_m.bailey.passmore@gmail.com.ics
+cal := ../calendar/output/mpb.ics
 
 curdate := $(shell date '+%Y-%m-%d')
 curjson := $(jsondir)/$(curdate).json
@@ -20,7 +20,7 @@ curmd := $(dailydir)/$(curdate).md
 # ---- standard {{{
 .PHONY: all
 
-all: $(curjson) $(curmd)
+all: $(curjson) $(curmd) $(ics)
 
 # }}}
 

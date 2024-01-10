@@ -88,7 +88,7 @@ def add_holidays(notes):
 
 def add_5min(notes, prompt):
     notes.insert(prefix=formats['subheader'], text=prompt)
-    for i in range(1, 4):
+    for i in range(1, 2):
         notes.insert(prefix=f'{i}. ', text='____________________')
     notes.insert(prefix='', text='')
     return notes

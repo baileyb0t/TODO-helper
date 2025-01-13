@@ -86,7 +86,7 @@ def get_events(ecal, caldate):
     out = []
     for event in events:
         if 'location' in event:
-            if 'zoom' in event['location'].lower(): meet_type='virtual'
+            if 'https' in event['location'].lower(): meet_type='virtual'
             else: meet_type='in person'
         else:
             meet_type='no location set'

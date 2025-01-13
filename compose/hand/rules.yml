@@ -18,6 +18,8 @@ format:
     '- '
   meeting:
     '- [ ] '
+  meeting_done:
+    '- [x] '
   todo:
     '- [ ] TODO: '
 tag:

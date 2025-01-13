@@ -69,9 +69,9 @@ def prep_out():
 
 
 def check_holidays():
-    by_county = {holidays.country_holidays(country).get(today) 
+    by_county = {holidays.country_holidays(country).get(today)
                  for country in countries}
-    by_market = {holidays.financial_holidays(market).get(today) 
+    by_market = {holidays.financial_holidays(market).get(today)
                  for market in markets}
     found = {v for v in by_county.union(by_market) if v}
     if not any(found): return None
@@ -111,15 +111,16 @@ if __name__ == '__main__':
 
     # dynamic setup
     path, today = prep_out()
-    
+
     # do the thing
-    notes = Doc(prefix='# ', 
-              text=today.strftime('%A, %d %B %Y'), 
-              path=path, 
+    notes = Doc(prefix='# ',
+              text=today.strftime('%A, %d %B %Y'),
+              path=path,
               dailyday=today.strftime('%Y-%m-%d'))
     notes = add_holidays(notes)
     notes = add_5min(notes, prompt="I'm grateful for...")
     notes = add_5min(notes, prompt="What would make today great?")
-    
+    notes = add_5min(notes, prompt="Media of the day")
+
     notes.to_json(args.output)
 # }}}

@@ -1,0 +1,141 @@
+{
+    "dailyday": "2025-01-12",
+    "lines": {
+        "0": {
+            "prefix": "# ",
+            "suffix": "\n",
+            "text": "Sunday, 12 January 2025"
+        },
+        "1": {
+            "prefix": "- ",
+            "suffix": "\n",
+            "text": "National or financial holiday(s):\tNone"
+        },
+        "10": {
+            "prefix": "- ",
+            "suffix": "\n",
+            "text": "\n\n"
+        },
+        "11": {
+            "prefix": "# ",
+            "suffix": "\n",
+            "text": "On the calendar"
+        },
+        "12": {
+            "prefix": "### ",
+            "suffix": "\n",
+            "text": "Last week"
+        },
+        "13": {
+            "prefix": "- [x] ",
+            "suffix": "\n",
+            "text": "Mon 09:00: Monday Office Hours (virtual)"
+        },
+        "14": {
+            "prefix": "- [x] ",
+            "suffix": "\n",
+            "text": "Wed 09:00: TS + BP standing (virtual)"
+        },
+        "15": {
+            "prefix": "- [x] ",
+            "suffix": "\n",
+            "text": "Thu 14:30: chat w/ MEP (virtual)"
+        },
+        "16": {
+            "prefix": "",
+            "suffix": "\n",
+            "text": ""
+        },
+        "17": {
+            "prefix": "### ",
+            "suffix": "\n",
+            "text": "This week"
+        },
+        "18": {
+            "prefix": "- [ ] ",
+            "suffix": "\n",
+            "text": "Mon 09:00: Monday Office Hours (virtual)"
+        },
+        "19": {
+            "prefix": "- [ ] ",
+            "suffix": "\n",
+            "text": "Tue 10:00: ACCESS project sync (virtual)"
+        },
+        "2": {
+            "prefix": "",
+            "suffix": "\n",
+            "text": ""
+        },
+        "20": {
+            "prefix": "- [ ] ",
+            "suffix": "\n",
+            "text": "Tue 11:00: team mtg (virtual)"
+        },
+        "21": {
+            "prefix": "- [ ] ",
+            "suffix": "\n",
+            "text": "Wed 09:00: TS + BP standing (virtual)"
+        },
+        "22": {
+            "prefix": "- [ ] ",
+            "suffix": "\n",
+            "text": "Wed 11:00: HRDAG, SFPDO, and friends (virtual)"
+        },
+        "23": {
+            "prefix": "- [ ] ",
+            "suffix": "\n",
+            "text": "Fri 13:00: Code Review (no location set)"
+        },
+        "24": {
+            "prefix": "",
+            "suffix": "\n",
+            "text": "\n"
+        },
+        "25": {
+            "prefix": "# ",
+            "suffix": "\n",
+            "text": "Repo activity"
+        },
+        "26": {
+            "prefix": "",
+            "suffix": "\n",
+            "text": "\n+--------------------------------+\n|            `PR-Km0`            |\n+--------------------------------+\n* 2 commits by other users.\n* 0 untracked files.\n\n+--------------------------------+\n|      `Chi-MP-data-story`       |\n+--------------------------------+\n_Committed: Thu 09 Jan_\n* [ed746774]: Pulled one more small section and re-ran notebook. // Involves 1 file(s), 383 lines\n* [bdbfc9b9]: Finished incorporating feedback from TS and MEP; need to work on 2 titles otherwise ready to pass to II. // Involves 2 file(s), 1507 lines\n* 0 untracked files.\n\n+--------------------------------+\n|        `US-Ventura-RJA`        |\n+--------------------------------+\n_Committed: Mon 06 Jan_\n* [0a795b58]: Added other sequence fields that can be used to identify a particular version of a case against a defendant. // Involves 1 file(s), 7 lines\n* 0 untracked files.\n"
+        },
+        "3": {
+            "prefix": "",
+            "suffix": "\n",
+            "text": ""
+        },
+        "4": {
+            "prefix": "# ",
+            "suffix": "\n",
+            "text": "On my plate"
+        },
+        "5": {
+            "prefix": "### ",
+            "suffix": "\n",
+            "text": "Priorities this week"
+        },
+        "6": {
+            "prefix": "- ",
+            "suffix": "\n",
+            "text": "\n"
+        },
+        "7": {
+            "prefix": "### ",
+            "suffix": "\n",
+            "text": "Back-burner this week"
+        },
+        "8": {
+            "prefix": "- ",
+            "suffix": "\n",
+            "text": "\n"
+        },
+        "9": {
+            "prefix": "### ",
+            "suffix": "\n",
+            "text": "Back-back-burner"
+        }
+    },
+    "path": ".//2025-01-12"
+}

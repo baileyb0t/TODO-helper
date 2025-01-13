@@ -74,7 +74,11 @@ def get_event_info(event):
 def find_events(ecal, caldate):
     events = []
     for event in recurring_ical_events.of(ecal).at(caldate):
+        if (event.decoded('DTSTART').hour < 9) | (event.decoded('DTSTART').hour > 17): continue
+        if event.decoded('DTSTART').isoweekday() > 5: continue
         if 'SUMMARY' in event:
+            if any([kw.lower() in str(event['SUMMARY']).lower()
+                    for kw in (' appt', 'Office Hour', ' OH')]): continue
             info = get_event_info(event)
             if 'LOCATION' in event: info['location'] = str(event['LOCATION'])
             events.append(info)

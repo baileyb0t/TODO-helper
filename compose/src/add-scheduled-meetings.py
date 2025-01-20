@@ -74,6 +74,7 @@ def get_event_info(event):
 def find_events(ecal, caldate):
     events = []
     for event in recurring_ical_events.of(ecal).at(caldate):
+        # needs to be modified to handle events scheduled in Central time
         if (event.decoded('DTSTART').hour < 9) | (event.decoded('DTSTART').hour > 17): continue
         if event.decoded('DTSTART').isoweekday() > 5: continue
         if 'SUMMARY' in event:
@@ -92,6 +93,8 @@ def get_events(ecal, caldate):
         if 'location' in event:
             if 'https' in event['location'].lower(): meet_type='virtual'
             else: meet_type='in person'
+        elif event['title'].lower() == 'payroll holiday':
+            meet_type = ''
         else:
             meet_type='no location set'
         text = f"{event['time']} {event['title']} ({meet_type})"
@@ -100,7 +103,7 @@ def get_events(ecal, caldate):
 
 
 def add_events(notes, events):
-    notes.insert(prefix=formats['subheader'], text='On the Calendar')
+    notes.insert(prefix=formats['header'], text='On the Calendar')
     if len(events) < 1: 
         notes.insert(prefix=formats['notes'], text=None)
         return notes

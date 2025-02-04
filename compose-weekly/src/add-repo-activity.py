@@ -109,7 +109,7 @@ def formatreponame(reponame, fixedwidth):
     formatted = '+-' + '-' * fixedwidth + '-+\n'
     for line in chunkstring(string=reponame, length=fixedwidth):
         formatted += '| {0:^{1}} |'.format(line, fixedwidth)
-    formatted += '\n+-' + '-'*(fixedwidth) + '-+\n'
+    formatted += '\n+-' + '-'*(fixedwidth) + '-+\n\n'
     return formatted
 
 

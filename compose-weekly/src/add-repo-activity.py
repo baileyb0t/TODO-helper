@@ -109,7 +109,7 @@ def formatreponame(reponame, fixedwidth):
     formatted = '+-' + '-' * fixedwidth + '-+\n'
     for line in chunkstring(string=reponame, length=fixedwidth):
         formatted += '| {0:^{1}} |'.format(line, fixedwidth)
-    formatted += '\n+-' + '-'*(fixedwidth) + '-+\n\n'
+    formatted += '\n+-' + '-'*(fixedwidth) + '-+\n'
     return formatted
 
 
@@ -127,7 +127,7 @@ def summarize(reponame, commits):
     for commit in commits:
         commitdt = datetime.fromtimestamp(commit.committed_date + commit.committer_tz_offset).strftime("%a %d %b")
         nchanges = commit.stats.total
-        if commitdt not in summary: summary += f"_Committed: {commitdt}_\n"
+        if commitdt not in summary: summary += f"\n_Committed: {commitdt}_\n"
         overview = f"* [{commit.hexsha[:8]}]: {formatmessage(msg=commit.message)}"
         overview += f" // Involves {nchanges['files']} file(s), {nchanges['lines']} lines\n"
         summary += overview

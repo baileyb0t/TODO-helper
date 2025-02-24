@@ -27,7 +27,6 @@ def get_args():
     parser.add_argument("--rules", default="hand/rules.yml")
     parser.add_argument("--json", default=None)
     parser.add_argument("--ics", default="../calendar/output/mbp.ics")
-    parser.add_argument("--output", default=None)
     args = parser.parse_args()
     assert Path(args.rules).exists()
     assert Path(args.json).exists()
@@ -147,7 +146,7 @@ def add_events(notes, events):
     for text in events:
         notes.insert(prefix=formats['meeting'],
                      text=text)
-    notes.insert(prefix='', text='')
+    notes.insert(prefix='', text='\n')
     return notes
 # }}}
 
@@ -171,5 +170,4 @@ if __name__ == '__main__':
     notes = add_events(notes, events)
 
     notes.to_json(args.json)
-    notes.to_md(args.output)
 # }}}

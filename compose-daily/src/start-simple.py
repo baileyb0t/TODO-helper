@@ -121,6 +121,7 @@ if __name__ == '__main__':
     notes = add_5min(notes, prompt="I'm grateful for...")
     notes = add_5min(notes, prompt="What would make today great?")
     notes = add_5min(notes, prompt="Media of the day")
+    notes.insert(prefix='', text='')
 
     notes.to_json(args.output)
 # }}}

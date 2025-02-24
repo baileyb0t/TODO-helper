@@ -13,19 +13,19 @@ rules := hand/rules.yml
 cal := ../calendar/output/mpb.ics
 
 curdate := $(shell date '+%Y-%m-%d')
-curjson := $(jsondir)/$(curdate).json
-curmd := $(dailydir)/$(curdate).md
+json := $(jsondir)/$(curdate).json
+md := $(dailydir)/$(curdate).md
 # }}}
 
 # ---- standard {{{
-.PHONY: all
+.PHONY: all addscheduled
 
-all: $(curjson) $(curmd) $(ics)
+all: $(json) addscheduled $(md)
 
 # }}}
 
 # ---- task-specific {{{
-$(curjson): \
+$(json): \
 		src/start-simple.py \
 		$(rules) \
 		$(dailydir)
@@ -35,16 +35,25 @@ $(curjson): \
 		--outputdir=$(dailydir) \
 		--output=$@
 
-$(curmd): \
+addscheduled: \
 		src/add-scheduled-meetings.py \
 		$(rules) \
-		$(curjson) \
+		$(json) \
 		$(cal)
 	python3 $< \
 		--rules=$(rules) \
-		--json=$(curjson) \
-		--ics=$(cal) \
+		--json=$(json) \
+		--ics=$(cal)
+
+$(md): \
+		src/add-task-sections.py \
+		$(rules) \
+		$(json) \
+		addscheduled
+	python3 $< \
+		--rules=$(rules) \
+		--json=$(json) \
 		--output=$@
 # }}}
- 
+
 # done.

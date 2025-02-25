@@ -64,6 +64,8 @@ if __name__ == '__main__':
 
     notes = doc.from_json(args.json)
     notes.insert(prefix=formats['header'], text='Non-calendar, non-coding time')
+    notes.insert(prefix=formats['meeting'], text='keep up with emails')
+    notes.insert(prefix=formats['meeting'], text='take notes from the day')
     notes.insert(prefix='', text='\n')
     notes.insert(prefix=formats['header'], text='Coding time')
     notes.insert(prefix='', text='\n')

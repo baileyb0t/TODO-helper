@@ -78,7 +78,7 @@ def checkrepos(info):
     return newinfo
 
 
-def recentcommits(info, sdate, edate, author=None):
+def recentcommits(info, sdate, edate, author):
     """Authored datetime is preserved on rebase, and
     we want to include commits from this week that might have been rebasing an earlier commit."""
     newinfo = info
@@ -91,10 +91,9 @@ def recentcommits(info, sdate, edate, author=None):
             tzaware = commit.committed_date + commit.committer_tz_offset
             committed = datetime.fromtimestamp(tzaware)
             if (committed < edate) & (committed >= sdate):
-                if author:
-                    if author.lower() in commit.author.name.lower(): commits.append(commit)
-                    else: newinfo[reponame]['n_other_recent'] += 1
-                else: commits.append(commit)
+                if any([authorname.lower() in str(commit.author).lower()
+                        for authorname in ('BP', 'Bailey', 'baileyb0t')]): commits.append(commit)
+                else: newinfo[reponame]['n_other_recent'] += 1
         newinfo[reponame]['recent'] = commits
         if newinfo[reponame]['n_other_recent'] == 0: newinfo[reponame].pop('n_other_recent')
     assert newinfo

@@ -81,8 +81,10 @@ def checkrepos(info):
 def recentcommits(info, sdate, edate, author):
     """Authored datetime is preserved on rebase, and
     we want to include commits from this week that might have been rebasing an earlier commit."""
+    ignore = ['inside-outside-calls',]
     newinfo = info
     for reponame, repoinfo in info.items():
+        if any([name in reponame for name in ignore]): continue
         repo = git.Repo(repoinfo['path'])
         if author: newinfo[reponame]['n_other_recent'] = 0
         commits = []
@@ -136,6 +138,7 @@ def summarize(reponame, commits):
 def summarizerecent(repos):
     fullsummary = ""
     for reponame, repoinfo in repos.items():
+        if not 'recent' in repoinfo.keys(): continue
         if not ((any(repoinfo['recent'])) | ('n_other_recent' in repoinfo.keys())): continue
         summary = formatreponame(reponame=f"`{reponame}`", fixedwidth=30)
         if any(repoinfo['recent']):

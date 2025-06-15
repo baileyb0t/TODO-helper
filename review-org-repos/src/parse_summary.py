@@ -39,10 +39,12 @@ def reformatlangs(x):
     if not any(x): return None
     formatted = []
     for langdict in x:
+        if pd.isna(langdict['size']): continue
         # docs aren't super clear about the units of the reported fields
         # but from SO posts it seems like this 'size' is probably in bytes
         info = (langdict['size'], langdict['node']['name'])
         formatted.append(info)
+    if len(formatted) == 0: return None
     return formatted
 
 
@@ -75,7 +77,7 @@ if __name__ == '__main__':
     repos = setupjson(jsonfile=args.input)
     less = repos[[
         'year_created', 'name', 'updatedAt',
-        'isPrivate', 'isArchived', 'isEmpty',
+        'visibility', 'isPrivate', 'isArchived', 'isEmpty',
         'nwatchers', 'nstargazers',
         'languages', 'disk_usage_KB',
         'sshurl',

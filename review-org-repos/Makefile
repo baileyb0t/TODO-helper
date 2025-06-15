@@ -6,17 +6,22 @@
 # =========================================
 
 shcript := output/get_summary.sh
-json := output/summary.json
-summary := output/summary_base.parquet
+json := output/base.json
+base := output/base.parquet
 repodir := output/repos
-output := output/summary.parquet
+outall := output/summary_all.parquet
+outrecent := output/summary_recent.parquet
 
 .PHONY: all clean clones
 
-all: $(output)
+all: $(outrecent)
 
-#clean:
-#	-rm -r output/*
+clean:
+	-rm $(shcript)
+	-rm $(json)
+	-rm $(base)
+	-rm $(outall)
+	-rm $(outrecent)
 
 $(shcript): \
 	src/writecmd.py
@@ -29,7 +34,7 @@ $(shcript): \
 $(json): $(shcript)
 	bash $(shcript)
 
-$(summary): \
+$(base): \
 	src/parse_summary.py \
 	$(json)
 	python $< \
@@ -38,17 +43,18 @@ $(summary): \
 
 clones: \
 	src/clone.py \
-	$(summary)
+	$(base)
 	python $< \
-		--input=$(summary)\
+		--input=$(base)\
 		--outdir=$(repodir)
 
-$(output): \
+$(outrecent): \
 	src/review_cloned.py \
-	$(summary)
+	$(base)
 	python $< \
-		--input=$(summary)\
+		--input=$(base)\
 		--repodir=$(repodir)\
-		--output=$@
+		--outall=$(outall)\
+		--outrecent=$@
 
 # done.

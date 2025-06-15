@@ -6,40 +6,49 @@
 # =========================================
 
 shcript := output/get_summary.sh
-summary := output/summary.json
-output := output/summary.parquet
+json := output/summary.json
+summary := output/summary_base.parquet
 repodir := output/repos
+output := output/summary.parquet
 
 .PHONY: all clean clones
 
-all: $(output) # clones don't recommend doing this
+all: $(output)
 
-clean:
-	-rm -r output/*
+#clean:
+#	-rm -r output/*
 
 $(shcript): \
 	src/writecmd.py
 	-mkdir output
 	python $< \
 		--org='HRDAG'\
-		--json=$(summary)\
+		--json=$(json)\
 		--shcript=$@
 
-$(summary): $(shcript)
+$(json): $(shcript)
 	bash $(shcript)
 
-$(output): \
+$(summary): \
 	src/parse_summary.py \
-	$(summary)
+	$(json)
 	python $< \
-		--input=$(summary)\
+		--input=$(json)\
 		--output=$@
 
 clones: \
 	src/clone.py \
-	$(output)
+	$(summary)
 	python $< \
-		--input=$(output)\
+		--input=$(summary)\
 		--outdir=$(repodir)
+
+$(output): \
+	src/review_cloned.py \
+	$(summary)
+	python $< \
+		--input=$(summary)\
+		--repodir=$(repodir)\
+		--output=$@
 
 # done.

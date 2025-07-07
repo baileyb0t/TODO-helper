@@ -115,7 +115,7 @@ def formatreponame(reponame, fixedwidth):
 
 
 def formatmessage(msg):
-    """I want the first work of the commit message to be title-cased, but not the rest of the message."""
+    """I want the first word of the commit message to be title-cased, but not the rest of the message."""
     chunks = msg.strip().split()
     titled = chunks[0].title() + ' ' + ' '.join(chunks[1:])
     if titled[-1] != ".": titled += "."
@@ -165,6 +165,7 @@ if __name__ == '__main__':
     base = checkrepos(info=base)
     today = datetime.now()
     aweekago = today - relativedelta(days=+7)
+    logger.info(f'processing activity from {aweekago} until {today} (exclusive)')
     repos = recentcommits(info=base, sdate=aweekago, edate=today, author="bailey")
     summary = summarizerecent(repos)
 

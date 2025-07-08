@@ -94,7 +94,7 @@ def recentcommits(info, sdate, edate, author):
         nother = 0
         for commit in repo.iter_commits():
             committed = PACIFIC.localize(datetime.datetime.fromtimestamp(commit.committed_date))
-            if (committed < edate) & (committed >= sdate):
+            if (committed <= edate) & (committed >= sdate):
                 if any([authorname.lower() in str(commit.author).lower()
                         for authorname in ('BP', 'Bailey', 'baileyb0t')]): commits.append(commit)
                 else: newinfo[reponame]['n_other_recent'] += 1
@@ -166,8 +166,8 @@ if __name__ == '__main__':
     base = findrepos(gitdir="~/git")
     base = checkrepos(info=base)
     today = PACIFIC.localize(datetime.datetime.now())
-    lastsunday = today + relativedelta(weekday=SU(-1))
-    aweekago = lastsunday - relativedelta(days=+7)
+    lastsunday = (today + relativedelta(weekday=SU(-1))).replace(hour=23, minute=59, second=59)
+    aweekago = (lastsunday - relativedelta(days=+7)).replace(hour=0, minute=0, second=0)
     logger.info(f'processing activity between {aweekago} and {lastsunday}')
     repos = recentcommits(info=base, sdate=aweekago, edate=lastsunday, author="bailey")
     summary = summarizerecent(repos)

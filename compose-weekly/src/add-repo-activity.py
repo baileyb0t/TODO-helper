@@ -13,11 +13,14 @@ from sys import stdout
 import argparse
 import logging
 import yaml
-from datetime import date, datetime
+import datetime
 from dateutil.relativedelta import *
+from pytz import timezone
 import git
 import re
 import doc
+
+PACIFIC = timezone('US/Pacific')
 # }}}
 
 # support methods {{{
@@ -90,8 +93,7 @@ def recentcommits(info, sdate, edate, author):
         commits = []
         nother = 0
         for commit in repo.iter_commits():
-            tzaware = commit.committed_date + commit.committer_tz_offset
-            committed = datetime.fromtimestamp(tzaware)
+            committed = PACIFIC.localize(datetime.datetime.fromtimestamp(commit.committed_date))
             if (committed < edate) & (committed >= sdate):
                 if any([authorname.lower() in str(commit.author).lower()
                         for authorname in ('BP', 'Bailey', 'baileyb0t')]): commits.append(commit)
@@ -126,7 +128,7 @@ def summarize(reponame, commits):
     if not any(commits): return ""
     summary = ""
     for commit in commits:
-        commitdt = datetime.fromtimestamp(commit.committed_date + commit.committer_tz_offset).strftime("%a %d %b")
+        commitdt = PACIFIC.localize(datetime.datetime.fromtimestamp(commit.committed_date)).strftime("%a %d %b")
         nchanges = commit.stats.total
         if commitdt not in summary: summary += f"\n_Committed: {commitdt}_\n"
         overview = f"* [{commit.hexsha[:8]}]: {formatmessage(msg=commit.message)}"
@@ -163,10 +165,11 @@ if __name__ == '__main__':
 
     base = findrepos(gitdir="~/git")
     base = checkrepos(info=base)
-    today = datetime.now()
-    aweekago = today - relativedelta(days=+7)
-    logger.info(f'processing activity from {aweekago} until {today} (exclusive)')
-    repos = recentcommits(info=base, sdate=aweekago, edate=today, author="bailey")
+    today = PACIFIC.localize(datetime.datetime.now())
+    lastsunday = today + relativedelta(weekday=SU(-1))
+    aweekago = lastsunday - relativedelta(days=+7)
+    logger.info(f'processing activity between {aweekago} and {lastsunday}')
+    repos = recentcommits(info=base, sdate=aweekago, edate=lastsunday, author="bailey")
     summary = summarizerecent(repos)
 
     notes.insert(prefix=formats['header'], text='Repo activity')

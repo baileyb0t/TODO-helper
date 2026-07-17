@@ -2,26 +2,26 @@
 # vim: set ts=4 sts=0 sw=4 si fenc=utf-8 et:
 # vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:
 # Authors:     BP
-# Maintainers: BP
-# Copyright:   2023, HRDAG, GPL v2 or later
 # =========================================
 
 # dependencies --- {{{
+import argparse
+import datetime
+import logging
+import re
 from os import listdir, path
 from pathlib import Path
 from sys import stdout
-import argparse
-import logging
+
+import doc
+import git
 import yaml
-import datetime
 from dateutil.relativedelta import *
 from pytz import timezone
-import git
-import re
-import doc
 
-PACIFIC = timezone('US/Pacific')
+PACIFIC = timezone("US/Pacific")
 # }}}
+
 
 # support methods {{{
 def get_args():
@@ -41,8 +41,9 @@ def get_args():
 def get_logger(sname, file_name=None):
     logger = logging.getLogger(sname)
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s " +
-                                  "- %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s " + "- %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     stream_handler = logging.StreamHandler(stdout)
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
@@ -54,7 +55,7 @@ def get_logger(sname, file_name=None):
 
 
 def read_yaml(fname):
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         rules = yaml.safe_load(f)
         f.close()
     return rules
@@ -65,7 +66,8 @@ def findrepos(gitdir):
     info = {}
     for dirname in listdir(gitdir):
         dirpath = f"{gitdir}/{dirname}"
-        if Path(f"{dirpath}/.git").exists(): info[dirname] = {'path': dirpath}
+        if Path(f"{dirpath}/.git").exists():
+            info[dirname] = {"path": dirpath}
     assert info
     return info
 
@@ -73,10 +75,11 @@ def findrepos(gitdir):
 def checkrepos(info):
     newinfo = info
     for reponame, repoinfo in info.items():
-        repo = git.Repo(repoinfo['path'])
-        newinfo[reponame]['dirty'] = repo.is_dirty()
-        newinfo[reponame]['untracked'] = [
-            f for f in repo.untracked_files if 'checkpoint' not in f]
+        repo = git.Repo(repoinfo["path"])
+        newinfo[reponame]["dirty"] = repo.is_dirty()
+        newinfo[reponame]["untracked"] = [
+            f for f in repo.untracked_files if "checkpoint" not in f
+        ]
     assert newinfo
     return newinfo
 
@@ -84,55 +87,75 @@ def checkrepos(info):
 def recentcommits(info, sdate, edate, author):
     """Authored datetime is preserved on rebase, and
     we want to include commits from this week that might have been rebasing an earlier commit."""
-    ignore = ['inside-outside-calls',]
+    ignore = [
+        "inside-outside-calls",
+    ]
     newinfo = info
     for reponame, repoinfo in info.items():
-        if any([name in reponame for name in ignore]): continue
-        repo = git.Repo(repoinfo['path'])
-        if author: newinfo[reponame]['n_other_recent'] = 0
+        if any([name in reponame for name in ignore]):
+            continue
+        repo = git.Repo(repoinfo["path"])
+        if author:
+            newinfo[reponame]["n_other_recent"] = 0
         commits = []
         nother = 0
         for commit in repo.iter_commits():
-            committed = PACIFIC.localize(datetime.datetime.fromtimestamp(commit.committed_date))
+            committed = PACIFIC.localize(
+                datetime.datetime.fromtimestamp(commit.committed_date)
+            )
             if (committed <= edate) & (committed >= sdate):
-                if any([authorname.lower() in str(commit.author).lower()
-                        for authorname in ('BP', 'Bailey', 'baileyb0t')]): commits.append(commit)
-                else: newinfo[reponame]['n_other_recent'] += 1
-        newinfo[reponame]['recent'] = commits
-        if newinfo[reponame]['n_other_recent'] == 0: newinfo[reponame].pop('n_other_recent')
+                if any(
+                    [
+                        authorname.lower() in str(commit.author).lower()
+                        for authorname in ("BP", "Bailey", "baileyb0t")
+                    ]
+                ):
+                    commits.append(commit)
+                else:
+                    newinfo[reponame]["n_other_recent"] += 1
+        newinfo[reponame]["recent"] = commits
+        if newinfo[reponame]["n_other_recent"] == 0:
+            newinfo[reponame].pop("n_other_recent")
     assert newinfo
     return newinfo
 
 
 def chunkstring(string, length):
-    return (string[0+i:length+i] for i in range(0, len(string), length))
+    return (string[0 + i : length + i] for i in range(0, len(string), length))
 
 
 def formatreponame(reponame, fixedwidth):
-    formatted = '+-' + '-' * fixedwidth + '-+\n'
+    formatted = "+-" + "-" * fixedwidth + "-+\n"
     for line in chunkstring(string=reponame, length=fixedwidth):
-        formatted += '| {0:^{1}} |'.format(line, fixedwidth)
-    formatted += '\n+-' + '-'*(fixedwidth) + '-+\n'
+        formatted += "| {0:^{1}} |".format(line, fixedwidth)
+    formatted += "\n+-" + "-" * (fixedwidth) + "-+\n"
     return formatted
 
 
 def formatmessage(msg):
     """I want the first word of the commit message to be title-cased, but not the rest of the message."""
     chunks = msg.strip().split()
-    titled = chunks[0].title() + ' ' + ' '.join(chunks[1:])
-    if titled[-1] != ".": titled += "."
+    titled = chunks[0].title() + " " + " ".join(chunks[1:])
+    if titled[-1] != ".":
+        titled += "."
     return titled
 
 
 def summarize(reponame, commits):
-    if not any(commits): return ""
+    if not any(commits):
+        return ""
     summary = ""
     for commit in commits:
-        commitdt = PACIFIC.localize(datetime.datetime.fromtimestamp(commit.committed_date)).strftime("%a %d %b")
+        commitdt = PACIFIC.localize(
+            datetime.datetime.fromtimestamp(commit.committed_date)
+        ).strftime("%a %d %b")
         nchanges = commit.stats.total
-        if commitdt not in summary: summary += f"\n_Committed: {commitdt}_\n"
+        if commitdt not in summary:
+            summary += f"\n_Committed: {commitdt}_\n"
         overview = f"* [{commit.hexsha[:8]}]: {formatmessage(msg=commit.message)}"
-        overview += f" // Involves {nchanges['files']} file(s), {nchanges['lines']} lines\n"
+        overview += (
+            f" // Involves {nchanges['files']} file(s), {nchanges['lines']} lines\n"
+        )
         summary += overview
     return summary
 
@@ -140,40 +163,46 @@ def summarize(reponame, commits):
 def summarizerecent(repos):
     fullsummary = ""
     for reponame, repoinfo in repos.items():
-        if not 'recent' in repoinfo.keys(): continue
-        if not ((any(repoinfo['recent'])) | ('n_other_recent' in repoinfo.keys())): continue
+        if not "recent" in repoinfo.keys():
+            continue
+        if not ((any(repoinfo["recent"])) | ("n_other_recent" in repoinfo.keys())):
+            continue
         summary = formatreponame(reponame=f"`{reponame}`", fixedwidth=30)
-        if any(repoinfo['recent']):
-            recent = summarize(reponame=reponame, commits=repoinfo['recent'])
+        if any(repoinfo["recent"]):
+            recent = summarize(reponame=reponame, commits=repoinfo["recent"])
             summary += recent
-        if 'n_other_recent' in repoinfo.keys():
-            if repoinfo['n_other_recent'] > 0:
+        if "n_other_recent" in repoinfo.keys():
+            if repoinfo["n_other_recent"] > 0:
                 summary += f"* {repoinfo['n_other_recent']} commits by other users.\n"
         summary += f"* {len(repoinfo['untracked'])} untracked files.\n"
         fullsummary = fullsummary + "\n" + summary
     return fullsummary
+
+
 # }}}
 
 # main --- {{{
-if __name__ == '__main__':
+if __name__ == "__main__":
     logger = get_logger(__name__, "output/add-scheduled-meetings.log")
     args = get_args()
 
     rules = read_yaml(args.rules)
-    formats = rules['format']
+    formats = rules["format"]
     notes = doc.from_json(args.injson)
 
     base = findrepos(gitdir="~/git")
     base = checkrepos(info=base)
     today = PACIFIC.localize(datetime.datetime.now())
-    lastsunday = (today + relativedelta(weekday=SU(-1))).replace(hour=23, minute=59, second=59)
+    lastsunday = (today + relativedelta(weekday=SU(-1))).replace(
+        hour=23, minute=59, second=59
+    )
     aweekago = (lastsunday - relativedelta(days=+7)).replace(hour=0, minute=0, second=0)
-    logger.info(f'processing activity between {aweekago} and {lastsunday}')
+    logger.info(f"processing activity between {aweekago} and {lastsunday}")
     repos = recentcommits(info=base, sdate=aweekago, edate=lastsunday, author="bailey")
     summary = summarizerecent(repos)
 
-    notes.insert(prefix=formats['header'], text='Repo activity')
-    notes.insert(prefix=formats['text'], text=summary)
+    notes.insert(prefix=formats["header"], text="Repo activity")
+    notes.insert(prefix=formats["text"], text=summary)
 
     notes.to_json(args.outjson)
     notes.to_md(args.outmd)

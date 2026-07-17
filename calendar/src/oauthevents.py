@@ -2,19 +2,20 @@
 # vim: set ts=4 sts=0 sw=4 si fenc=utf-8 et:
 # vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:
 # Authors:     BP
-# Maintainers: BP
-# Copyright:   2023, HRDAG, GPL v2 or later
 # =========================================
 
 # dependencies --- {{{
+import argparse
+import datetime
+import logging
 from pathlib import Path
 from sys import stdout
-import argparse
-import logging
-import datetime
+
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+
 # }}}
+
 
 # support methods --- {{{
 def get_args():
@@ -30,8 +31,9 @@ def get_args():
 def get_logger(sname, file_name=None):
     logger = logging.getLogger(sname)
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s " +
-                                  "- %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s " + "- %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     stream_handler = logging.StreamHandler(stdout)
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
@@ -51,19 +53,23 @@ def resolvecreds(oauthkey, cached):
         # requires user interaction
         flow = InstalledAppFlow.from_client_secrets_file(oauthkey, SCOPES)
         creds = flow.run_local_server(port=0)
-        with open(cached, 'w') as f: f.write(creds.to_json())
+        with open(cached, "w") as f:
+            f.write(creds.to_json())
     return creds
 
 
-def getcalevents(service, calid='primary', year=year):
+def getcalevents(service, calid="primary", year=year):
     events = service.events().list(calendarId=calid).execute()
     out = []
-    for event in events['items']:
-        if str(year) not in event['start']: continue
-        title = event['summary']
-        s = event['start']
+    for event in events["items"]:
+        if str(year) not in event["start"]:
+            continue
+        title = event["summary"]
+        s = event["start"]
         out.append(event)
     return events
+
+
 # }}}
 
 
@@ -75,12 +81,12 @@ if __name__ == "__main__":
     SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
     year = datetime.date.today().year
 
-    logger.info('resolving credentials, may trigger an oauth window')
+    logger.info("resolving credentials, may trigger an oauth window")
     creds = resolvecreds(args.oauthkey, args.cached)
 
-    logger.info('loading calendar')
+    logger.info("loading calendar")
     service = build("calendar", "v3", credentials=creds)
     events = getcalevents(service)
 
-    logger.info('done.')
+    logger.info("done.")
 # }}}

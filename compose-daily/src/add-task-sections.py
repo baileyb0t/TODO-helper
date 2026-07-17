@@ -2,19 +2,20 @@
 # vim: set ts=4 sts=0 sw=4 si fenc=utf-8 et:
 # vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:
 # Authors:     BP
-# Maintainers: BP
-# Copyright:   2025, HRDAG, GPL v2 or later
 # =========================================
 
 # dependencies --- {{{
-from pathlib import Path
-from sys import stdout
 import argparse
 import logging
-import yaml
-import pandas as pd
+from pathlib import Path
+from sys import stdout
+
 import doc
+import pandas as pd
+import yaml
+
 # }}}
+
 
 # support methods {{{
 def get_args():
@@ -31,8 +32,9 @@ def get_args():
 def get_logger(sname, file_name=None):
     logger = logging.getLogger(sname)
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s " +
-                                  "- %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s " + "- %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     stream_handler = logging.StreamHandler(stdout)
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
@@ -44,15 +46,16 @@ def get_logger(sname, file_name=None):
 
 
 def read_yaml(fname):
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         rules = yaml.safe_load(f)
         f.close()
     return rules
+
+
 # }}}
 
 # main --- {{{
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     # basic setup --- {{{
     # setup logging
     logger = get_logger(__name__, "output/add-task-sections.log")
@@ -60,15 +63,15 @@ if __name__ == '__main__':
     args = get_args()
 
     rules = read_yaml(args.rules)
-    formats = rules['format']
+    formats = rules["format"]
 
     notes = doc.from_json(args.json)
-    notes.insert(prefix=formats['header'], text='Non-calendar, non-coding time')
-    notes.insert(prefix=formats['meeting'], text='keep up with emails')
-    notes.insert(prefix=formats['meeting'], text='take notes from the day')
-    notes.insert(prefix='', text='\n')
-    notes.insert(prefix=formats['header'], text='Coding time')
-    notes.insert(prefix='', text='\n')
+    notes.insert(prefix=formats["header"], text="Non-calendar, non-coding time")
+    notes.insert(prefix=formats["meeting"], text="keep up with emails")
+    notes.insert(prefix=formats["meeting"], text="take notes from the day")
+    notes.insert(prefix="", text="\n")
+    notes.insert(prefix=formats["header"], text="Coding time")
+    notes.insert(prefix="", text="\n")
 
     notes.to_json(args.json)
     notes.to_md(args.output)

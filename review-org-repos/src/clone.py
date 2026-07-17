@@ -2,19 +2,20 @@
 # vim: set ts=4 sts=0 sw=4 si fenc=utf-8 et:
 # vim: set fdm=marker fmr={{{,}}} fdl=0 foldcolumn=4:
 # Authors:     BP
-# Maintainers: BP
-# Copyright:   2024, HRDAG, GPL v2 or later
 # =========================================
 
 # ---- dependencies {{{
-from pathlib import Path
-from sys import stdout
 import argparse
-from loguru import logger
 import os
 import subprocess
+from pathlib import Path
+from sys import stdout
+
 import pandas as pd
-#}}}
+from loguru import logger
+
+# }}}
+
 
 # --- support methods --- {{{
 def getargs():
@@ -27,27 +28,31 @@ def getargs():
 
 
 def setuplogging(logfile):
-    logger.add(logfile,
-               colorize=True,
-               format="<green>{time:YYYY-MM-DD⋅at⋅HH:mm:ss}</green>⋅<level>{message}</level>",
-               level="INFO")
+    logger.add(
+        logfile,
+        colorize=True,
+        format="<green>{time:YYYY-MM-DD⋅at⋅HH:mm:ss}</green>⋅<level>{message}</level>",
+        level="INFO",
+    )
     return 1
+
+
 # }}}
 
 # --- main --- {{{
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = getargs()
     setuplogging("output/parse_summary.log")
-    logger.info('loading repo summary data')
+    logger.info("loading repo summary data")
     less = pd.read_parquet(args.input)
-    logger.info(f'setting up {args.outdir} for clones')
-    subprocess.call(['mkdir', args.outdir])
+    logger.info(f"setting up {args.outdir} for clones")
+    subprocess.call(["mkdir", args.outdir])
     os.chdir(args.outdir)
-    logger.info('begin cloning')
+    logger.info("begin cloning")
     for sshurl in less.sshurl.values:
-        clone = ['git', 'clone', sshurl]
+        clone = ["git", "clone", sshurl]
         subprocess.Popen(clone)
-    logger.info('done')
+    logger.info("done")
 # }}}
 
 # done.

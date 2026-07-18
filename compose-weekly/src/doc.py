@@ -6,7 +6,9 @@
 
 # dependencies --- {{{
 import json
+import sys
 
+sys.path.append("../templates")
 from line import Line
 
 # }}}

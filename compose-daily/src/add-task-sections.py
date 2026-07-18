@@ -11,7 +11,6 @@ from pathlib import Path
 from sys import stdout
 
 import doc
-import pandas as pd
 import yaml
 
 # }}}
@@ -66,11 +65,24 @@ if __name__ == "__main__":
     formats = rules["format"]
 
     notes = doc.from_json(args.json)
-    notes.insert(prefix=formats["header"], text="Non-calendar, non-coding time")
+    notes.insert(prefix=formats["header"], text="Agenda")
     notes.insert(prefix=formats["meeting"], text="keep up with emails")
     notes.insert(prefix=formats["meeting"], text="take notes from the day")
+    notes.insert(
+        prefix=formats["meeting"], text="define outstanding tasks for tomorrow"
+    )
     notes.insert(prefix="", text="\n")
-    notes.insert(prefix=formats["header"], text="Coding time")
+    notes.insert(prefix=formats["subheader"], text="Outstanding (from yesterday)")
+    notes.insert(prefix="", text="\n")
+    notes.insert(prefix=formats["subheader"], text="New today")
+    notes.insert(prefix="", text="\n")
+    notes.insert(prefix=formats["subheader"], text="Articles & Resources from the day")
+    notes.insert(prefix="", text="\n")
+    notes.insert(prefix=formats["header"], text="Tech time")
+    notes.insert(prefix="", text="\n")
+    notes.insert(prefix=formats["subheader"], text="Debugging")
+    notes.insert(prefix="", text="\n")
+    notes.insert(prefix=formats["subheader"], text="Commands of the day")
     notes.insert(prefix="", text="\n")
 
     notes.to_json(args.json)

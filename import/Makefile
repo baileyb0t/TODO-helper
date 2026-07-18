@@ -12,8 +12,8 @@ demoin := $(HERE)/demo/hand/code-review.md
 demodir := $(HERE)/demo/output
 demo := $(demodir)/demo.done
 
-notedir := $(HOME)/git/my-TODO/individual
-taskdir := $(HOME)/git/my-TODO/tasks
+notedir := $(HOME)/git/tools/my-TODO/notes
+taskdir := $(HOME)/git/tools/my-TODO/tasks
 import := $(taskdir)/import.done
 # }}}
 
@@ -43,5 +43,5 @@ $(demo): \
 		--taskdir=$(demodir)
 	touch $@
 # }}}
- 
+
 # done.

@@ -160,7 +160,7 @@ def get_events(ecal, caldate):
 def add_events(notes, events):
     notes.insert(prefix=formats["header"], text="On the Calendar")
     if len(events) < 1:
-        notes.insert(prefix=formats["notes"], text=None)
+        notes.insert(prefix=formats["notes"], text="None\n\n")
         return notes
     for text in events:
         notes.insert(prefix=formats["meeting"], text=text)
@@ -172,10 +172,7 @@ def add_events(notes, events):
 
 # main --- {{{
 if __name__ == "__main__":
-    # basic setup --- {{{
-    # setup logging
     logger = get_logger(__name__, "output/add-scheduled-meetings.log")
-    # arg handling
     args = get_args()
 
     rules = read_yaml(args.rules)

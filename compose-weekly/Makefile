@@ -7,8 +7,8 @@
 # TODO-helper/import/Makefile
 
 # ---- dependencies {{{
-weeklydir := $(HOME)/git/my-TODO/individual/weekly
-jsondir := $(HOME)/git/my-TODO/individual/weekly/json
+weeklydir := $(HOME)/git/tools/my-TODO/individual/weekly
+jsondir := $(HOME)/git/tools/my-TODO/individual/weekly/json
 rules := hand/rules.yml
 cal := ../calendar/output/mpb.ics
 

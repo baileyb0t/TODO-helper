@@ -7,8 +7,8 @@
 # TODO-helper/import/Makefile
 
 # ---- dependencies {{{
-weeklydir := $(HOME)/git/tools/my-TODO/individual/weekly
-jsondir := $(HOME)/git/tools/my-TODO/individual/weekly/json
+weeklydir := $(HOME)/git/tools/my-TODO/notes/weekly
+jsondir := $(HOME)/git/tools/my-TODO/notes/weekly/json
 rules := hand/rules.yml
 cal := ../calendar/output/mpb.ics
 
@@ -30,6 +30,7 @@ $(basejson): \
 		src/start-simple.py \
 		$(rules) \
 		$(dailydir)
+	-mkdir output $(weeklydir) $(jsondir)
 	python3 $< \
 		--rules=$(rules) \
 		--date=$(curdate) \

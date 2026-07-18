@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 dependencies = [
     "datetime>=6.0",
     "fastparquet>=2026.5.0",
+    "gitpython>=3.1.52",
     "holidays>=0.100",
     "icalendar>=7.2.0",
     "pandas>=3.0.3",

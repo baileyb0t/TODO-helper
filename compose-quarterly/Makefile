@@ -8,7 +8,7 @@
 
 quartdir := $(HOME)/git/tools/my-TODO/notes/quarterly
 jsondir := $(HOME)/git/tools/my-TODO/notes/quarterly/json
-rules := hand/rules.yml
+rules := templates/rules.yml
 cal := ../calendar/output/mpb.ics
 
 curdate := $(shell date '+%Y-%m-%d')

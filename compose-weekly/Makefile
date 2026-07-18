@@ -6,26 +6,20 @@
 # =========================================
 # TODO-helper/import/Makefile
 
-# ---- dependencies {{{
 weeklydir := $(HOME)/git/tools/my-TODO/notes/weekly
 jsondir := $(HOME)/git/tools/my-TODO/notes/weekly/json
-rules := hand/rules.yml
+rules := ../templates/rules.yml
 cal := ../calendar/output/mpb.ics
 
 curdate := $(shell date '+%Y-%m-%d')
 basejson := $(jsondir)/$(curdate)-base.json
 curjson := $(jsondir)/$(curdate).json
 curmd := $(weeklydir)/$(curdate).md
-# }}}
 
-# ---- standard {{{
 .PHONY: all
 
 all: $(curmd)
 
-# }}}
-
-# ---- task-specific {{{
 $(basejson): \
 		src/start-simple.py \
 		$(rules) \
@@ -60,6 +54,5 @@ $(curmd): \
 		--outjson=$(curjson) \
 		--outmd=$@
 	rm $(basejson)
-# }}}
 
 # done.

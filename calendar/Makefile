@@ -5,7 +5,7 @@
 # Copyright:   2023, HRDAG, GPL v2 or later
 # =========================================
 
-icskey := ${HOME}/git/dotfiles/creds/google-cal-secret
+icskey := ${HOME}/git/tools/dotfiles/creds/google-cal-secret
 ics := output/mpb.ics
 
 .PHONY: all clean
